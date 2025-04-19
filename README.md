@@ -1,3 +1,7 @@
+# Acerca de
+Este repositorio es una bifurcacion del repositorio "TSA NG", subido por Renzo Mauro Ontivero en el gitlab de BFA
+
+
 # TSA2
 
 Actualmente el contrato se encuentra deployado en BFA:
@@ -195,41 +199,3 @@ CONTRACT_ABI_PATH=$(pwd)/abi.json \
 CONTRACT_ADDRESS=0x7e56220069CAaF8367EA42817EA9210296AeC7c6 \
 node dist/index.js
 ```
-
-### Deploy de la UI
-Al buildear se crea el archivo ```ui/dist/index.html``` y todo el resto de los recursos
-necesarios. Al acceder al index.html sólo se ve el componente de Stampeo. El html se ve así:
-
-```html
-<div id="app" apiurl=https://tsa2.buenosaires.gob.ar 
-  lb_00=" El archivo "
-  lb_01=" fue enviado con éxito para ser sellado"
-  lb_02="Se ha producido un error al intentar sellar " 
-  lb_03=" se encuentra sellado por: "
-  lb_04=" en el bloque " 
-  lb_05="No se ha podido verificar el archivo "
-  lb_06="Volver a Sellar o Verificar" 
-  lb_07="Cargando"
-  lb_08="Arrastrá archivos aquí<br>ó"
-  lb_09="Seleccioná archivos <span class='sr-only'>para Sellar o Verificar</span>"
-  lb_10="Nombre del archivo: " 
-  lb_11="Hash del archivo: " 
-  lb_12="Sellar"
-  lb_13="Verificar"
-  lb_14=" Agregar archivos" 
-  lb_15=" Copiar" 
-  lb_16="Enlace de verificación" 
-  lb_17="Remover archivo"
-  lb_18="Seleccionar otros archivos" 
-  lb_19=" Solo se pueden agregar " 
-  lb_20=" archivos por vez">
-</div>
- ```
-
-Para embeberlo en otro contexto hay que copiar el div ```<div id=app>```, los estilos  ```link``` y el script ```tsa2.js``` del body. 
-
-También se puede cambiar los textos de la app modificando todos los labels (```lb_```) que figuran como atributos de ```<div id=app>``` según corresponda. 
-
-Es **importante** notar que la url de la api se configura en el atributo ***apiurl*** del div con id ```app```. Esto tiene que apuntar a la URL donde se eligió ejecutar la API. En este caso apunta a la API de producción hosteada por buenosaires.gob.ar
-
-**Ver más detalles en el README dentro del directorio ```ui```** 

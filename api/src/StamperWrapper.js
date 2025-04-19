@@ -42,6 +42,9 @@ class Stamper {
 
             let txPromise
             let gasLimit = 2000000
+            
+            // Obtenemos el nonce actualizado antes de enviar la transacción
+            let nonce = await this.web3.eth.getTransactionCount(defaultAccount, 'latest');
 
             if (walletAccount) {
                 let methodPut = this.contract.methods.put(objectsToStamp)
@@ -56,7 +59,7 @@ class Stamper {
                     gas: gasLimit,
                     // gasLimit: gasLimit,
                     data: encodedABI,
-    		        nonce: this.web3.bfa.txnonce++
+    		        nonce: nonce
                 }
                 // tx.v = Buffer.from([47525974938])
                 // tx.nonce = this.web3.utils.toHex(await this.web3.eth.getTransactionCount(defaultAccount))
@@ -176,10 +179,14 @@ class Stamper {
                 let whostamped  =       stamp[1];
                 let blockno     =       stamp[2];
                 let block       =       await this.web3.eth.getBlock( blockno );
+
+                const timestamp = block.timestamp;
+                const date = new Date(timestamp * 1000); // Multiplicamos por 1000 para convertirlo a milisegundos
                 stamps.push({
                         whostamped:     whostamped,
                         blocknumber:    blockno.toString(),
-                        blocktimestamp: block.timestamp
+                        blocktimestamp: block.timestamp,
+                        stampdate: date
                 });
             }
 

@@ -36,7 +36,9 @@ async function setupWeb3() {
         if (accountIsSet) {
             let     rawKeyJsonV3    =   fs.readFileSync(process.env.GETH_ACCOUNT_JSON)
             let     keyJsonV3       =   JSON.parse(rawKeyJsonV3)
-            let     key             =   web3.eth.accounts.decrypt(keyJsonV3, process.env.GETH_ACCOUNT_PASSWORD)
+            console.log("*" ,process.env.GETH_ACCOUNT_PASSWORD,"*")
+            let     key             =   web3.eth.accounts.decrypt(keyJsonV3, "")
+            // let     key             =   web3.eth.accounts.decrypt(keyJsonV3, process.env.GETH_ACCOUNT_PASSWORD)
             walletAccount           =   web3.eth.accounts.wallet.add(key)
             web3.eth.defaultAccount =   (await web3.eth.getAccounts())[0]
         } else {
@@ -64,6 +66,24 @@ async function setupWeb3() {
             contractAbi             =   data.abi
             contractAddress         =   data.networks[netId].address
         }
+        
+        let balance = await web3.eth.getBalance(web3.eth.defaultAccount);
+        console.log(`defaultAccount: ${web3.eth.defaultAccount}`);
+        console.log(`Balance de la cuenta: ${balance}`);
+        // let gasPrice = await web3.eth.getGasPrice();
+        // console.log(`Precio de gas actual: ${gasPrice}`);
+
+        let contract = new web3.eth.Contract(contractAbi, contractAddress)
+        let objectsToStamp = ["9f0f2bc730665e093554b0df330d728b5bd414b15c9bc1915a203802038c6849"]
+
+        // Asegurar que cada hash tenga "0x" al inicio
+        objectsToStamp = objectsToStamp.map(hash => hash.startsWith("0x") ? hash : "0x" + hash);
+        let methodPut = contract.methods.put(objectsToStamp)
+        let encodedABI = methodPut.encodeABI()
+
+        const { gasPrice, gasEstimate } = await getTransactionGas(web3, contractAddress, encodedABI)
+        console.log('gasPrice', gasPrice)
+        console.log('gasEstimate', gasEstimate)
 
         console.log(`Conectado exitosamente: 
  > host: ${providerHost}
@@ -209,3 +229,30 @@ let     port                        =   (process.env.PORT) ? process.env.PORT : 
 app.listen(port, () =>
     console.log(`TSA Api corriendo en ${port}!`),
 )
+
+
+
+
+async function getTransactionGas(web3, contractAddress, data) {
+    try {
+        // 1. Obtener el precio del gas
+        let gasPrice = await web3.eth.getGasPrice(); // Precio actual del gas en wei (1 Gwei = 10^9 wei)
+        console.log(`Precio del gas: ${gasPrice} wei`);
+
+        // 2. Estimar el gas necesario para la transacción
+        let gasEstimate = await web3.eth.estimateGas({
+            to: contractAddress,
+            data: data
+        });
+        console.log(`Gas estimado para la transacción: ${gasEstimate}`);
+
+        // 3. Calcular el costo total de la transacción (gasPrice * gasEstimate)
+        let totalGasCost = web3.utils.toBN(gasPrice).mul(web3.utils.toBN(gasEstimate));
+        console.log(`Costo total de gas: ${web3.utils.fromWei(totalGasCost, 'ether')} ETH`);
+
+        // 4. Retornar el gas estimado y el gasPrice para utilizarlo en la transacción
+        return { gasPrice, gasEstimate };
+    } catch (error) {
+        console.error("Error al obtener los valores de gas:", error);
+    }
+}
